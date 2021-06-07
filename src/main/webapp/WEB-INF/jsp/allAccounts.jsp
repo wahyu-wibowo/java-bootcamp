@@ -9,4 +9,5 @@
 </c:forEach>
 </ul>
 
+<hr/>
 <a href="${pageContext.request.contextPath}/" >Back to Index</a>

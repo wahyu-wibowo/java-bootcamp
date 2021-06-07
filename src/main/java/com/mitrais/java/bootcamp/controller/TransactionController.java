@@ -1,8 +1,5 @@
 package com.mitrais.java.bootcamp.controller;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.mitrais.java.bootcamp.service.EmployeeRepository;
@@ -71,10 +68,16 @@ public class TransactionController {
 	public String welcomeScreen(Account account) {
 		try {
 			service.checkAuth(account);
-			return ("redirect:/listEmployees");
+			return ("redirect:/transaction/");
 		} catch (Exception e) {
 			return ("redirect:/validation?message=".concat(e.getMessage()));
 		}
+	}
+
+	//choose transaction screen
+	@RequestMapping(value = "/transaction", method = RequestMethod.GET)
+	public ModelAndView chooseTransaction(Account account) {
+		return new ModelAndView("TransactionChoose");
 	}
 
 	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
