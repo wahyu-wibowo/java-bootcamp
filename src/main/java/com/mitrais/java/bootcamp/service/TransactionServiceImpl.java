@@ -11,8 +11,8 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public boolean checkAuth(Account input) throws Exception {
 		//validate acc and pin is correct
-		//return false;
-		throw new Exception("ERROR BOSKU");
+		return true;
+		//throw new Exception("ERROR BOSKU");
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package com.mitrais.java.bootcamp.controller;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.mitrais.java.bootcamp.service.EmployeeRepository;
@@ -25,6 +22,7 @@ public class TransactionController {
 	@Autowired
 	private TransactionService service;
 
+	//TODO:UNUSED
 	@RequestMapping(value = "/addNewEmployee", method = RequestMethod.POST)
 	public String newEmployee(Employee employee) {
 
@@ -33,6 +31,7 @@ public class TransactionController {
 
 	}
 
+	//TODO:UNUSED
 	@RequestMapping(value = "/addNewEmployee", method = RequestMethod.GET)
 	public ModelAndView addNewEmployee() {
 
@@ -41,6 +40,7 @@ public class TransactionController {
 
 	}
 
+	//TODO:UNUSED
 	@RequestMapping(value = "/listEmployees", method = RequestMethod.GET)
 	public ModelAndView employees() {
 		List<Employee> allEmployees = employeeData.findAll();
@@ -48,6 +48,7 @@ public class TransactionController {
 	}
 
 
+	//TODO: UNUSED
 	//account list screen
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public ModelAndView getAccounts() {
@@ -62,25 +63,30 @@ public class TransactionController {
 
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public ModelAndView getindex() {
+	public ModelAndView getIndex() {
 		return new ModelAndView("index");
 	}
 
 	//welcome screen
+	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
+	public ModelAndView welcomeScreen() {
+		return new ModelAndView("transactionWelcome", "form", new Account());
+	}
+
 	@RequestMapping(value = "/welcome", method = RequestMethod.POST)
 	public String welcomeScreen(Account account) {
 		try {
 			service.checkAuth(account);
-			return ("redirect:/listEmployees");
+			return ("redirect:/transaction?acc=".concat(account.getAccountNumber()));
 		} catch (Exception e) {
 			return ("redirect:/validation?message=".concat(e.getMessage()));
 		}
 	}
 
-	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
-	public ModelAndView welcomeScreen() {
-		Account acc = new Account();
-		return new ModelAndView("transactionWelcome", "form", acc);
+	//choose transaction screen
+	@RequestMapping(value = "/transaction", method = RequestMethod.GET)
+	public ModelAndView chooseTransaction(@RequestParam String acc) {
+		return new ModelAndView("TransactionChoose", "acc", acc);
 	}
 
 }

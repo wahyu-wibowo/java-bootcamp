@@ -13,8 +13,6 @@ public class Transaction {
 	@Id
 	private long id;
 	private Date transactionDate;
-	private String type; //withdrawal / transfer
-
 
 	private String account; //todo: might need to create relation with Account object directly
 	private BigDecimal amount;
@@ -41,14 +39,6 @@ public class Transaction {
 
 	public void setTransactionDate(Date transactionDate) {
 		this.transactionDate = transactionDate;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public String getAccount() {
@@ -85,7 +75,7 @@ public class Transaction {
 
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", date=" + transactionDate + ", type=" + type + ", account=" + account + ", amount=" + amount.toString() + ", destinationAccount=" + destinationAccount + ", referenceNumber=" + referenceNumber + "]";
+		return "Employee [id=" + id + ", date=" + transactionDate + ", account=" + account + ", amount=" + amount.toString() + ", destinationAccount=" + destinationAccount + ", referenceNumber=" + referenceNumber + "]";
 	}
 
 }
