@@ -5,5 +5,5 @@
 
 ## **Known Issue:**
 1. Account is sent in param, not body
-2. Other button, not link
-3. Still need to tweak passing account variable to each screen
+2. Still need to tweak passing account variable to each screen
+3. PIN unmasked, unencrypted

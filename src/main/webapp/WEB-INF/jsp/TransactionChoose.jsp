@@ -3,7 +3,7 @@
 
 <h1>Choose Transaction</h1>
 
-<a href="${pageContext.request.contextPath}/withdrawal" >Withdrawal</a><br/>
+<a href="${pageContext.request.contextPath}/withdrawal?acc=${acc}" >Withdrawal</a><br/>
 <a href="${pageContext.request.contextPath}/transfer" >Fund Transfer</a><br/>
 
 <br/>

@@ -8,7 +8,7 @@
     <div>
         <form:label path="amount">Enter amount to withdraw</form:label>
         <form:input path="amount" />
-        <%--<form:input path="account"  value="${account}" type="hidden" />--%>
+        <form:input path="account"  value="${account}" type="hidden" />
     </div>
     <div>
         <input type="submit" />
@@ -19,6 +19,6 @@
 
 <br/>
 <hr/>
-<a href="${pageContext.request.contextPath}/transaction" >Back to Transaction</a><br/>
+<a href="${pageContext.request.contextPath}/transaction?acc=${form.account}" >Back to Transaction</a><br/>
 <a href="${pageContext.request.contextPath}/" >Back to Index</a>
 </html>

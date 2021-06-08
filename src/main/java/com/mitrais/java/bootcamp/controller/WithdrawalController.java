@@ -16,33 +16,35 @@ import javax.servlet.http.HttpServletRequest;
 public class WithdrawalController {
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public ModelAndView getIndex() {
+	public ModelAndView getIndex(@RequestParam String acc) {
 		Transaction trx = new Transaction();
-		return new ModelAndView("fixedWithdrawal", "form", trx);
+		return new ModelAndView("fixedWithdrawal", "acc", acc);
 	}
 
-	@RequestMapping(value = "", method = RequestMethod.POST)
+	/*@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView getIndex(Transaction trx, HttpServletRequest request) {
 		//return ("redirect:/withdrawal/other");
 		//return new ModelAndView("OtherWithdrawal", "form", trx);
 		request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
 		return new ModelAndView("redirect:/withdrawal/other");
-	}
+	}*/
 
+	//withdraw with custom amount
 	@RequestMapping(value = "/other", method = RequestMethod.GET)
-	public ModelAndView getOtherAmountScreen(Transaction trxx) {
+	public ModelAndView getOtherAmountScreen(@RequestParam String acc) {
 		Transaction trx = new Transaction();
+		trx.setAccount(acc);
 		return new ModelAndView("OtherWithdrawal", "form", trx);
 	}
 
 	@RequestMapping(value = "/other", method = RequestMethod.POST)
-	public ModelAndView submitOtherAmountScreen(Transaction trxx) {
-		Transaction trx = new Transaction();
+	public ModelAndView submitOtherAmountScreen(Transaction trx) {
 		return new ModelAndView("OtherWithdrawal", "form", trx);
 	}
 
+	//withdrawal confirmation
 	@RequestMapping(value = "/confirm", method = RequestMethod.GET)
-	public ModelAndView confirm(@RequestParam String amt) {
+	public ModelAndView confirm(@RequestParam String amt, @RequestParam String acc) {
 		return new ModelAndView("ConfirmWithdrawal", "message", amt);
 	}
 
