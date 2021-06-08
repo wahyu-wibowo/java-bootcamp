@@ -4,6 +4,7 @@
 
 
 ## **Known Issue:**
-1. Account is sent in param, not body
-2. Still need to tweak passing account variable to each screen
-3. PIN unmasked, unencrypted
+1. Account is sent in param, not body (bypassable)
+2. PIN unmasked, unencrypted
+3. Data might be not ACID
+4. Need better error handling and thrown message
