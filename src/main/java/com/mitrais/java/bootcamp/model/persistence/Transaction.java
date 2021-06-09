@@ -1,4 +1,4 @@
-package com.mitrais.java.bootcamp.model;
+package com.mitrais.java.bootcamp.model.persistence;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,8 +21,16 @@ public class Transaction {
 	private String destinationAccount;
 	private String referenceNumber;
 
+	private Boolean isConfirmed;
+
 	public Transaction() {
 		//default constructor
+	}
+
+	public Transaction(Date transactionDate, String account, BigDecimal amount) {
+		this.transactionDate = transactionDate;
+		this.account = account;
+		this.amount = amount;
 	}
 
 	public long getId() {
@@ -71,6 +79,14 @@ public class Transaction {
 
 	public void setReferenceNumber(String referenceNumber) {
 		this.referenceNumber = referenceNumber;
+	}
+
+	public Boolean getConfirmed() {
+		return isConfirmed;
+	}
+
+	public void setConfirmed(Boolean confirmed) {
+		isConfirmed = confirmed;
 	}
 
 	@Override

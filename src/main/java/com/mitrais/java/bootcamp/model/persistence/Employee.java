@@ -1,4 +1,4 @@
-package com.mitrais.java.bootcamp.model;
+package com.mitrais.java.bootcamp.model.persistence;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
