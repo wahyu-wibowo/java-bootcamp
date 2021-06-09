@@ -1,13 +1,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-
 <body>
-    <h1>Summary</h1>
+<h1>Fund Transfer Summary</h1>
     <div>
-        Date : ${trx.date}
+        Destination Account : ${trx.destinationAccount}
     </div>
     <div>
-        Withdraw : $${trx.amount}
+        Transfer Amount : $${trx.amount}
+    </div>
+    <div>
+        Reference Number : ${trx.referenceNumber}
     </div>
     <div>
         Balance : $${trx.balance}
@@ -16,7 +18,7 @@
 
 <br/>
 Is this transaction correct?<br/>
-<a href="${pageContext.request.contextPath}/withdrawal/confirmed?id=${trx.id}" >Yes, Proceed</a><br/><br/>
+<a href="${pageContext.request.contextPath}/transfer/confirmed?id=${trx.id}" >Yes, Proceed</a><br/><br/>
 <hr/>
 <a href="${pageContext.request.contextPath}/transaction?acc=${trx.account}" >Back to Transaction</a><br/>
 <a href="${pageContext.request.contextPath}/" >Back to Index</a>

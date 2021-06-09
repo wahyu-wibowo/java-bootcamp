@@ -1,34 +1,29 @@
 package com.mitrais.java.bootcamp.service;
 
 import com.mitrais.java.bootcamp.Constants;
+import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
 import com.mitrais.java.bootcamp.model.persistence.Transaction;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TransactionServiceImpl implements TransactionService {
 	List<Account> accounts = new ArrayList<>(Arrays.asList(
-			new Account(1L, "John Doe", "012108", "112233", new BigDecimal(100)),
-			new Account(2L, "Jane Doe", "932012", "112244", new BigDecimal(30)),
-			new Account(3L, "Dummy", "321", "123", new BigDecimal(3000))
+			new Account("John Doe", "012108", "112233", new BigDecimal(100)),
+			new Account("Jane Doe", "932012", "112244", new BigDecimal(30)),
+			new Account("Dummy 1", "321", "123", new BigDecimal(3000)),
+			new Account( "Dummy 2", "321", "213", new BigDecimal(0))
 	));
 
 	List<Transaction> transactions = new ArrayList<>();
 
 	@Override
 	public void checkAuth(Account input) throws Exception {
-		//validate acc length
-		//todo: reactivate later
-		/*if(input.getAccountNumber().length() != Constants.ACC_LENGTH) {
-			throw new Exception("Account Number should have 6 digits length");
-		}*/
-
-		//validate acc only number
-		if(!input.getAccountNumber().matches("[0-9]+")) {
-			throw new Exception("Account Number should only contains numbers");
-		}
+		validateAccount(input.getAccountNumber());
 
 		//validate pin length
 		//todo: reactivate later
@@ -66,14 +61,25 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Transaction createTransaction(String account, String amount) throws Exception {
-		Account acc = findByAccount(account);
+	public TransactionDto createTransaction(String account, String amount) throws Exception {
+		return createTransaction(account, null, amount);
+	}
 
-		if(!amount.matches("[0-9]+")) {
+	@Override
+	public TransactionDto createTransaction(String srcAcc, String dstAcc, String amount) throws Exception {
+		Account src = findByAccount(srcAcc);
+		Account dst = null;
+		
+		if (!StringUtils.isEmpty(dstAcc)) {
+			validateAccount(dstAcc);
+			dst = findByAccount(dstAcc);
+		}
+
+		if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
 			throw new Exception("Invalid amount");
 		}
 
-		return createTransaction(acc, new BigDecimal(amount));
+		return createTransaction(src, dst, new BigDecimal(amount));
 	}
 
 	@Override
@@ -92,6 +98,11 @@ public class TransactionServiceImpl implements TransactionService {
 			}
 
 			//journaling
+			if (!StringUtils.isEmpty(trx.getDestinationAccount())) {
+				//transfer journal
+				Account destAcc = findByAccount(trx.getDestinationAccount());
+				destAcc.setBalance(destAcc.getBalance().add(trx.getAmount()));
+			}
 			acc.setBalance(acc.getBalance().subtract(trx.getAmount()));
 			trx.setConfirmed(true);
 
@@ -101,20 +112,22 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 	}
 
-	public Transaction createTransaction(Account acc, BigDecimal amt) throws Exception {
+	private TransactionDto createTransaction(Account srcAcc, Account dstAcc, BigDecimal amt) throws Exception {
 		//validate balance is enough
-		if (acc.getBalance().compareTo(amt) < 0){
+		if (srcAcc.getBalance().compareTo(amt) < 0){
 			throw new Exception("Insufficient balance $".concat(amt.toString()));
 		}
 
 		//create trx
-		Transaction trx = new Transaction(new Date(), acc.getAccountNumber(), amt);
+		Transaction trx = new Transaction(new Date(), srcAcc.getAccountNumber(), amt);
 
 		//check is withdrawal or transfer
-		//withdrawal has no destinationAccount
-		if (StringUtils.isEmpty(trx.getDestinationAccount())) {
+		//withdrawal has no dstAcc
+		if (dstAcc == null) {
 			validateWithdrawal(trx);
 		} else {
+			trx.setDestinationAccount(dstAcc.getAccountNumber());
+			trx.setReferenceNumber(generateRefNo());
 			validateTransfer(trx);
 		}
 
@@ -122,17 +135,17 @@ public class TransactionServiceImpl implements TransactionService {
 		trx.setId(new Random().nextLong());
 		transactions.add(trx);
 
-		return trx;
+		return convertToDto(trx, srcAcc);
 	}
 
-	public void validateTransaction(Transaction trx) throws Exception{
+	private void validateTransaction(Transaction trx) throws Exception{
 		//validate max amount per transaction
 		if (trx.getAmount().compareTo(Constants.MAX_TRX_AMOUNT) > 0) {
 			throw new Exception("Maximum amount to withdraw is $".concat(Constants.MAX_TRX_AMOUNT.toString()));
 		}
 	}
 
-	public void validateWithdrawal(Transaction trx) throws Exception{
+	private void validateWithdrawal(Transaction trx) throws Exception{
 		validateTransaction(trx);
 
 		//validate if withdraw amount is not multiple of $10.
@@ -141,7 +154,47 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 	}
 
-	public void validateTransfer(Transaction trx) throws Exception{
+	private void validateTransfer(Transaction trx) throws Exception{
 		validateTransaction(trx);
+
+		//validate if transfer amount is < 1
+		if (trx.getAmount().compareTo(Constants.MIN_TRF_AMOUNT) < 0) {
+			throw new Exception("Minimum amount to withdraw is ".concat(Constants.MIN_TRF_AMOUNT.toString()));
+		}
+	}
+
+	private void validateAccount(String acc) throws Exception {
+		//validate acc length
+		//todo: reactivate later
+		/*if(acc.length() != Constants.ACC_LENGTH) {
+			throw new Exception("Account Number should have 6 digits length");
+		}*/
+
+		//validate acc only number
+		if(!acc.matches("[0-9]+")) {
+			throw new Exception("Account Number should only contains numbers");
+		}
+	}
+
+	private String generateRefNo() {
+		Random rnd = new Random();
+		int number = rnd.nextInt(999999);
+		return String.format("%06d", number);
+	}
+
+	private TransactionDto convertToDto(Transaction trx, Account arc) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+		String strDate = dateFormat.format(trx.getTransactionDate());
+
+		TransactionDto dto = new TransactionDto();
+		dto.setId(trx.getId());
+		dto.setDate(strDate);
+		dto.setAmount(trx.getAmount().toString());
+		dto.setBalance(arc.getBalance().toString());
+		dto.setAccount(trx.getAccount());
+		dto.setDestinationAccount(trx.getDestinationAccount());
+		dto.setReferenceNumber(trx.getReferenceNumber());
+
+		return dto;
 	}
 }

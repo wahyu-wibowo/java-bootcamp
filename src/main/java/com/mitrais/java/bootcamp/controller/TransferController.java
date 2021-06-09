@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(path = "/withdrawal")
-public class WithdrawalController {
+@RequestMapping(path = "/transfer")
+public class TransferController {
 	@Autowired
 	private TransactionService service;
 
@@ -20,33 +20,16 @@ public class WithdrawalController {
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getIndex(@RequestParam String acc) {
 		Transaction trx = new Transaction();
-		return new ModelAndView("fixedWithdrawal", "acc", acc);
-	}
-
-	//withdraw with custom amount
-	@RequestMapping(value = "/other", method = RequestMethod.GET)
-	public ModelAndView getOtherAmountScreen(@RequestParam String acc) {
-		Transaction trx = new Transaction();
 		trx.setAccount(acc);
-		return new ModelAndView("OtherWithdrawal", "form", trx);
+		return new ModelAndView("TransferForm", "form", trx);
 	}
 
-	@RequestMapping(value = "/other", method = RequestMethod.POST)
+	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView submitOtherAmountScreen(TransactionDto trx) {
 		try {
-			TransactionDto transaction = service.createTransaction(trx.getAccount(), trx.getAmount());
-			return new ModelAndView("ConfirmWithdrawal", "trx", transaction);
-		} catch (Exception e) {
-			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
-		}
-	}
+			TransactionDto transaction = service.createTransaction(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
 
-	//withdrawal confirmation
-	@RequestMapping(value = "/confirm", method = RequestMethod.GET)
-	public ModelAndView confirm(@RequestParam String amt, @RequestParam String acc) {
-		try {
-			TransactionDto trx = service.createTransaction(acc, amt);
-			return new ModelAndView("ConfirmWithdrawal", "trx", trx);
+			return new ModelAndView("ConfirmTransfer", "trx", transaction);
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
 		}
