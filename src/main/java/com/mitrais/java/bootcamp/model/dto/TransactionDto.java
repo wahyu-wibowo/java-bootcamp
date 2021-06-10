@@ -1,8 +1,21 @@
 package com.mitrais.java.bootcamp.model.dto;
 
 public class TransactionDto {
+	private Long id;
 	private String account;
 	private String amount;
+	private String destinationAccount;
+	private String referenceNumber;
+	private String date;
+	private String balance;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getAccount() {
 		return account;
@@ -18,5 +31,37 @@ public class TransactionDto {
 
 	public void setAmount(String amount) {
 		this.amount = amount;
+	}
+
+	public String getDestinationAccount() {
+		return destinationAccount;
+	}
+
+	public void setDestinationAccount(String destinationAccount) {
+		this.destinationAccount = destinationAccount;
+	}
+
+	public String getReferenceNumber() {
+		return referenceNumber;
+	}
+
+	public void setReferenceNumber(String referenceNumber) {
+		this.referenceNumber = referenceNumber;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getBalance() {
+		return balance;
+	}
+
+	public void setBalance(String balance) {
+		this.balance = balance;
 	}
 }

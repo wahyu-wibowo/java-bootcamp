@@ -1,39 +1,26 @@
 package com.mitrais.java.bootcamp.model.persistence;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.math.BigDecimal;
 
 @Entity
 public class Account {
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Id
-	private long id;
+	private String accountNumber;
 	private String name;
 	private String pin;
-	private String accountNumber;
 	private BigDecimal balance;
 
 	public Account() {
 		//default constructor
 	}
 
-	public Account(long id, String name, String pin, String accountNumber, BigDecimal balance) {
-		this.id = id;
+	public Account(String name, String pin, String accountNumber, BigDecimal balance) {
 		this.name = name;
 		this.pin = pin;
 		this.accountNumber = accountNumber;
 		this.balance = balance;
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -70,7 +57,7 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "Account #" + id + ": [Name = " + name + ", PIN = " + pin + ", Account Number = " + accountNumber + ", Balance = $" + balance.toString() + "]";
+		return "Account # " + ": [Name = " + name + ", PIN = " + pin + ", Account Number = " + accountNumber + ", Balance = $" + balance.toString() + "]";
 	}
 
 }
