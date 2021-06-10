@@ -1,18 +1,20 @@
 package com.mitrais.java.bootcamp.model.persistence;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 public class Transaction {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Id
 	private long id;
-	private Date transactionDate;
+
+	@Column(columnDefinition = "TIMESTAMP")
+	@Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+	private LocalDateTime transactionDate;
 
 	private String account; //todo: might need to create relation with Account object directly
 	private BigDecimal amount;
@@ -27,7 +29,7 @@ public class Transaction {
 		//default constructor
 	}
 
-	public Transaction(Date transactionDate, String account, BigDecimal amount) {
+	public Transaction(LocalDateTime transactionDate, String account, BigDecimal amount) {
 		this.transactionDate = transactionDate;
 		this.account = account;
 		this.amount = amount;
@@ -41,11 +43,11 @@ public class Transaction {
 		this.id = id;
 	}
 
-	public Date getTransactionDate() {
+	public LocalDateTime getTransactionDate() {
 		return transactionDate;
 	}
 
-	public void setTransactionDate(Date transactionDate) {
+	public void setTransactionDate(LocalDateTime transactionDate) {
 		this.transactionDate = transactionDate;
 	}
 
@@ -91,7 +93,7 @@ public class Transaction {
 
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", date=" + transactionDate + ", account=" + account + ", amount=" + amount.toString() + ", destinationAccount=" + destinationAccount + ", referenceNumber=" + referenceNumber + "]";
+		return "TRX [id=" + id + ", date=" + transactionDate + ", account=" + account + ", amount=" + amount.toString() + ", destinationAccount=" + destinationAccount + ", referenceNumber=" + referenceNumber + "]";
 	}
 
 }
