@@ -7,7 +7,6 @@ import com.mitrais.java.bootcamp.model.persistence.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,19 +18,6 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Autowired
 	private TransactionRepository trxRepo;
-
-	List<Account> accounts = new ArrayList<>(Arrays.asList(
-			new Account("John Doe", "012108", "112233", new BigDecimal(100)),
-			new Account("Jane Doe", "932012", "112244", new BigDecimal(30)),
-			new Account("Dummy 1", "321", "123", new BigDecimal(3000)),
-			new Account( "Dummy 2", "321", "213", new BigDecimal(0))
-	));
-
-	@PostConstruct
-	public void injectData() {
-		//todo: move this later to import.sql
-		accRepo.save(accounts);
-	}
 
 	@Override
 	public void checkAuth(Account input) throws Exception {
