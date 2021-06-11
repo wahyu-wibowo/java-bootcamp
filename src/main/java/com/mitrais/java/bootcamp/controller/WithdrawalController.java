@@ -26,7 +26,7 @@ public class WithdrawalController {
 	//withdraw with custom amount
 	@RequestMapping(value = "/other", method = RequestMethod.GET)
 	public ModelAndView getOtherAmountScreen(@RequestParam String acc) {
-		Transaction trx = new Transaction();
+		TransactionDto trx = new TransactionDto();
 		trx.setAccount(acc);
 		return new ModelAndView("OtherWithdrawal", "form", trx);
 	}
