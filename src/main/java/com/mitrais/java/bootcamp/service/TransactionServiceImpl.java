@@ -4,14 +4,22 @@ import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
 import com.mitrais.java.bootcamp.model.persistence.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class TransactionServiceImpl implements TransactionService {
+	@Autowired
+	private AccountRepository accRepo;
+
+	@Autowired
+	private TransactionRepository trxRepo;
+
 	List<Account> accounts = new ArrayList<>(Arrays.asList(
 			new Account("John Doe", "012108", "112233", new BigDecimal(100)),
 			new Account("Jane Doe", "932012", "112244", new BigDecimal(30)),
@@ -19,7 +27,11 @@ public class TransactionServiceImpl implements TransactionService {
 			new Account( "Dummy 2", "321", "213", new BigDecimal(0))
 	));
 
-	List<Transaction> transactions = new ArrayList<>();
+	@PostConstruct
+	public void injectData() {
+		//todo: move this later to import.sql
+		accRepo.save(accounts);
+	}
 
 	@Override
 	public void checkAuth(Account input) throws Exception {
@@ -37,7 +49,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		//validate acc and pin is correct
-		Optional<Account> result = accounts.stream().filter(x -> x.getAccountNumber().equals(input.getAccountNumber())).findAny();
+		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(input.getAccountNumber())).findAny();
 		if (!result.isPresent() || !result.get().getPin().equals(input.getPin())){
 			throw new Exception("Invalid Account Number/PIN");
 		}
@@ -45,14 +57,12 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Override
 	public List<Account> getAllAccount() {
-		//TODO: get from db later
-		return accounts;
+		return accRepo.findAll();
 	}
 
 	@Override
 	public Account findByAccount(String account) throws Exception {
-		//TODO: get from db later
-		Optional<Account> result = accounts.stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
+		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
 		if (!result.isPresent()){
 			throw new Exception("Account Not Found");
 		} else {
@@ -85,11 +95,11 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public Transaction confirmTransaction(String id) throws Exception {
 		//saving trx and do journaling
-		Optional<Transaction> result = transactions.stream().filter(x -> x.getId() == (Long.valueOf(id)).longValue()).findAny();
-		if (!result.isPresent()){
+		//todo: might need to check trx confirmation status
+		Transaction trx = trxRepo.findOne(Long.valueOf(id));
+		if (trx == null || trx.getAmount() == null){
 			throw new Exception("Transaction Not Found");
 		} else {
-			Transaction trx = result.get();
 			Account acc = findByAccount(trx.getAccount());
 
 			//revalidate balance is enough
@@ -102,11 +112,14 @@ public class TransactionServiceImpl implements TransactionService {
 				//transfer journal
 				Account destAcc = findByAccount(trx.getDestinationAccount());
 				destAcc.setBalance(destAcc.getBalance().add(trx.getAmount()));
+				accRepo.save(destAcc);
 			}
 			acc.setBalance(acc.getBalance().subtract(trx.getAmount()));
 			trx.setConfirmed(true);
 
-			//todo: save acc n trx to db
+			//save acc n trx to db
+			accRepo.save(acc);
+			trxRepo.save(trx);
 
 			return trx;
 		}
@@ -119,7 +132,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		//create trx
-		Transaction trx = new Transaction(new Date(), srcAcc.getAccountNumber(), amt);
+		Transaction trx = new Transaction(LocalDateTime.now(), srcAcc.getAccountNumber(), amt);
 
 		//check is withdrawal or transfer
 		//withdrawal has no dstAcc
@@ -131,9 +144,8 @@ public class TransactionServiceImpl implements TransactionService {
 			validateTransfer(trx);
 		}
 
-		//todo: save unconfirmed trx in db
-		trx.setId(new Random().nextLong());
-		transactions.add(trx);
+		//save unconfirmed trx in db
+		trxRepo.save(trx);
 
 		return convertToDto(trx, srcAcc);
 	}
@@ -183,12 +195,9 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	private TransactionDto convertToDto(Transaction trx, Account arc) {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
-		String strDate = dateFormat.format(trx.getTransactionDate());
-
 		TransactionDto dto = new TransactionDto();
 		dto.setId(trx.getId());
-		dto.setDate(strDate);
+		dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 		dto.setAmount(trx.getAmount().toString());
 		dto.setBalance(arc.getBalance().toString());
 		dto.setAccount(trx.getAccount());

@@ -2,9 +2,7 @@ package com.mitrais.java.bootcamp.controller;
 
 import java.util.List;
 
-import com.mitrais.java.bootcamp.service.EmployeeRepository;
 import com.mitrais.java.bootcamp.model.persistence.Account;
-import com.mitrais.java.bootcamp.model.persistence.Employee;
 import com.mitrais.java.bootcamp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,40 +13,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class TransactionController {
-
-	@Autowired
-	private EmployeeRepository employeeData;
-
 	@Autowired
 	private TransactionService service;
 
-	//TODO:UNUSED
-	@RequestMapping(value = "/addNewEmployee", method = RequestMethod.POST)
-	public String newEmployee(Employee employee) {
-
-		employeeData.save(employee);
-		return ("redirect:/listEmployees");
-
-	}
-
-	//TODO:UNUSED
-	@RequestMapping(value = "/addNewEmployee", method = RequestMethod.GET)
-	public ModelAndView addNewEmployee() {
-
-		Employee emp = new Employee();
-		return new ModelAndView("newEmployee", "form", emp);
-
-	}
-
-	//TODO:UNUSED
-	@RequestMapping(value = "/listEmployees", method = RequestMethod.GET)
-	public ModelAndView employees() {
-		List<Employee> allEmployees = employeeData.findAll();
-		return new ModelAndView("allEmployees", "employees", allEmployees);
-	}
-
-
-	//TODO: UNUSED
+	//TODO: SHOULD BE UNUSED
 	//account list screen
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public ModelAndView getAccounts() {
