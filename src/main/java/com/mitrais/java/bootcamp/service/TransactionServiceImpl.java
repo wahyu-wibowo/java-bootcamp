@@ -121,7 +121,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 			LocalDateTime before = dateTime.atStartOfDay();
 			LocalDateTime after = dateTime.atTime(23,59, 59);
-			return convertToDto(trxRepo.findByTransactionDateBetweenAndIsConfirmedTrueOrderByTransactionDate(before, after));
+			return convertToDto(trxRepo.findByTransactionDateBetweenAndIsConfirmedTrueOrderByTransactionDateDesc(before, after));
 		}
 		return null;
 	}
@@ -225,7 +225,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	private List<Transaction> findOrderedBySeatNumberLimitedTo(String acc) {
-		return entityManager.createQuery("SELECT tx FROM Transaction tx WHERE tx.account = :acc AND tx.isConfirmed = true ORDER BY tx.transactionDate", Transaction.class)
+		return entityManager.createQuery("SELECT tx FROM Transaction tx WHERE tx.account = :acc AND tx.isConfirmed = true ORDER BY tx.transactionDate desc ", Transaction.class)
 				.setParameter("acc", acc)
 				.setMaxResults(Constants.MAX_QUERY_BY_ACC_LIMIT)
 				.getResultList();
