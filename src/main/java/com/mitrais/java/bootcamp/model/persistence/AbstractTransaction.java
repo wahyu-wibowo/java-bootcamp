@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-public class Transaction {
+@Table(name = "transaction")
+public abstract class AbstractTransaction {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Id
 	private long id;
@@ -18,18 +19,13 @@ public class Transaction {
 
 	private String account; //todo: might need to create relation with Account object directly
 	private BigDecimal amount;
-
-	// for fund transfer only
-	private String destinationAccount;
-	private String referenceNumber;
-
 	private Boolean isConfirmed;
 
-	public Transaction() {
+	public AbstractTransaction() {
 		//default constructor
 	}
 
-	public Transaction(LocalDateTime transactionDate, String account, BigDecimal amount) {
+	public AbstractTransaction(LocalDateTime transactionDate, String account, BigDecimal amount) {
 		this.transactionDate = transactionDate;
 		this.account = account;
 		this.amount = amount;
@@ -67,22 +63,6 @@ public class Transaction {
 		this.amount = amount;
 	}
 
-	public String getDestinationAccount() {
-		return destinationAccount;
-	}
-
-	public void setDestinationAccount(String destinationAccount) {
-		this.destinationAccount = destinationAccount;
-	}
-
-	public String getReferenceNumber() {
-		return referenceNumber;
-	}
-
-	public void setReferenceNumber(String referenceNumber) {
-		this.referenceNumber = referenceNumber;
-	}
-
 	public Boolean getConfirmed() {
 		return isConfirmed;
 	}
@@ -90,10 +70,4 @@ public class Transaction {
 	public void setConfirmed(Boolean confirmed) {
 		isConfirmed = confirmed;
 	}
-
-	@Override
-	public String toString() {
-		return "TRX [id=" + id + ", date=" + transactionDate + ", account=" + account + ", amount=" + amount.toString() + ", destinationAccount=" + destinationAccount + ", referenceNumber=" + referenceNumber + "]";
-	}
-
 }

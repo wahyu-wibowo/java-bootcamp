@@ -3,7 +3,9 @@ package com.mitrais.java.bootcamp.service;
 import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
-import com.mitrais.java.bootcamp.model.persistence.Transaction;
+import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
+import com.mitrais.java.bootcamp.model.persistence.Transfer;
+import com.mitrais.java.bootcamp.model.persistence.Withdrawal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -57,32 +59,68 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public TransactionDto createTransaction(String account, String amount) throws Exception {
-		return createTransaction(account, null, amount);
-	}
-
-	@Override
-	public TransactionDto createTransaction(String srcAcc, String dstAcc, String amount) throws Exception {
-		Account src = findByAccount(srcAcc);
-		Account dst = null;
-
-		if (!StringUtils.isEmpty(dstAcc)) {
-			validateAccount(dstAcc);
-			dst = findByAccount(dstAcc);
-		}
-
+	public TransactionDto createWithdrawal(String account, String amount) throws Exception {
 		if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
 			throw new Exception("Invalid amount: should only contains numbers");
 		}
 
-		return createTransaction(src, dst, new BigDecimal(amount));
+		Account acc = findByAccount(account);
+		BigDecimal amt = new BigDecimal(amount);
+
+		//create trx
+		Withdrawal trx = new Withdrawal(LocalDateTime.now(), acc.getAccountNumber(), amt);
+
+		validateTransaction(trx);
+		//validate if withdraw amount is not multiple of $10.
+		if(trx.getAmount().remainder(BigDecimal.TEN).compareTo(BigDecimal.ZERO) != 0) {
+			throw new Exception("Invalid amount");
+		}
+
+		//validate balance is enough
+		if (acc.getBalance().compareTo(amt) < 0){
+			throw new Exception("Insufficient balance $".concat(amt.toString()));
+		}
+
+		//save unconfirmed trx in db
+		trxRepo.save(trx);
+
+		return convertToDto(trx, acc);
 	}
 
 	@Override
-	public Transaction confirmTransaction(String id) throws Exception {
+	public TransactionDto createTransfer(String srcAcc, String dstAcc, String amount) throws Exception {
+		Account src = findByAccount(srcAcc);
+
+		validateAccount(dstAcc);
+		Account	dst = findByAccount(dstAcc);
+
+		if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
+			throw new Exception("Invalid amount: should only contains numbers");
+		}
+		BigDecimal amt = new BigDecimal(amount);
+
+		//create trx
+		Transfer trx = new Transfer(LocalDateTime.now(), src.getAccountNumber(), amt);
+		trx.setDestinationAccount(dst.getAccountNumber());
+		trx.setReferenceNumber(generateRefNo());
+		validateTransfer(trx);
+
+		//validate balance is enough
+		if (src.getBalance().compareTo(amt) < 0){
+			throw new Exception("Insufficient balance $".concat(amt.toString()));
+		}
+
+		//save unconfirmed trx in db
+		trxRepo.save(trx);
+
+		return convertToDto(trx, src);
+	}
+
+	@Override
+	public AbstractTransaction confirmTransaction(String id) throws Exception {
 		//saving trx and do journaling
 		//todo: might need to check trx confirmation status
-		Transaction trx = trxRepo.findOne(Long.valueOf(id));
+		AbstractTransaction trx = trxRepo.findOne(Long.valueOf(id));
 		if (trx == null || trx.getAmount() == null){
 			throw new Exception("Transaction Not Found");
 		} else {
@@ -94,9 +132,11 @@ public class TransactionServiceImpl implements TransactionService {
 			}
 
 			//journaling
-			if (!StringUtils.isEmpty(trx.getDestinationAccount())) {
+			//todo: try
+			Transfer trf = (Transfer) trx;
+			if (!StringUtils.isEmpty(trf.getDestinationAccount())) {
 				//transfer journal
-				Account destAcc = findByAccount(trx.getDestinationAccount());
+				Account destAcc = findByAccount(trf.getDestinationAccount());
 				destAcc.setBalance(destAcc.getBalance().add(trx.getAmount()));
 				accRepo.save(destAcc);
 			}
@@ -126,48 +166,14 @@ public class TransactionServiceImpl implements TransactionService {
 		return null;
 	}
 
-	private TransactionDto createTransaction(Account srcAcc, Account dstAcc, BigDecimal amt) throws Exception {
-		//create trx
-		Transaction trx = new Transaction(LocalDateTime.now(), srcAcc.getAccountNumber(), amt);
-
-		//check is withdrawal or transfer
-		//withdrawal has no dstAcc
-		if (dstAcc == null) {
-			validateWithdrawal(trx);
-		} else {
-			trx.setDestinationAccount(dstAcc.getAccountNumber());
-			trx.setReferenceNumber(generateRefNo());
-			validateTransfer(trx);
-		}
-
-		//validate balance is enough
-		if (srcAcc.getBalance().compareTo(amt) < 0){
-			throw new Exception("Insufficient balance $".concat(amt.toString()));
-		}
-
-		//save unconfirmed trx in db
-		trxRepo.save(trx);
-
-		return convertToDto(trx, srcAcc);
-	}
-
-	private void validateTransaction(Transaction trx) throws Exception{
+	private void validateTransaction(AbstractTransaction trx) throws Exception{
 		//validate max amount per transaction
 		if (trx.getAmount().compareTo(Constants.MAX_TRX_AMOUNT) > 0) {
 			throw new Exception("Maximum amount to withdraw is $".concat(Constants.MAX_TRX_AMOUNT.toString()));
 		}
 	}
 
-	private void validateWithdrawal(Transaction trx) throws Exception{
-		validateTransaction(trx);
-
-		//validate if withdraw amount is not multiple of $10.
-		if(trx.getAmount().remainder(BigDecimal.TEN).compareTo(BigDecimal.ZERO) != 0) {
-			throw new Exception("Invalid amount");
-		}
-	}
-
-	private void validateTransfer(Transaction trx) throws Exception{
+	private void validateTransfer(AbstractTransaction trx) throws Exception{
 		validateTransaction(trx);
 
 		//validate if transfer amount is < 1
@@ -194,20 +200,21 @@ public class TransactionServiceImpl implements TransactionService {
 		return String.format("%06d", number);
 	}
 
-	private TransactionDto convertToDto(Transaction trx, Account arc) {
+	private TransactionDto convertToDto(AbstractTransaction trx, Account arc) {
 		TransactionDto dto = new TransactionDto();
 		dto.setId(trx.getId());
 		dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 		dto.setAmount(trx.getAmount().toString());
 		dto.setBalance(arc.getBalance().subtract(trx.getAmount()).toString());
 		dto.setAccount(trx.getAccount());
-		dto.setDestinationAccount(trx.getDestinationAccount());
-		dto.setReferenceNumber(trx.getReferenceNumber());
+		//todo: try
+		/*dto.setDestinationAccount(trx.getDestinationAccount());
+		dto.setReferenceNumber(trx.getReferenceNumber());*/
 
 		return dto;
 	}
 
-	private List<TransactionDto> convertToDto(List<Transaction> trxs) {
+	private List<TransactionDto> convertToDto(List<AbstractTransaction> trxs) {
 		List<TransactionDto> result = new ArrayList<>();
 		trxs.stream().forEach(trx -> {
 			TransactionDto dto = new TransactionDto();
@@ -215,8 +222,9 @@ public class TransactionServiceImpl implements TransactionService {
 			dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 			dto.setAmount(trx.getAmount().toString());
 			dto.setAccount(trx.getAccount());
-			dto.setDestinationAccount(trx.getDestinationAccount());
-			dto.setReferenceNumber(trx.getReferenceNumber());
+			//todo: try
+			/*dto.setDestinationAccount(trx.getDestinationAccount());
+			dto.setReferenceNumber(trx.getReferenceNumber());*/
 
 			result.add(dto);
 		});
@@ -224,8 +232,8 @@ public class TransactionServiceImpl implements TransactionService {
 		return result;
 	}
 
-	private List<Transaction> findOrderedBySeatNumberLimitedTo(String acc) {
-		return entityManager.createQuery("SELECT tx FROM Transaction tx WHERE tx.account = :acc AND tx.isConfirmed = true ORDER BY tx.transactionDate desc ", Transaction.class)
+	private List<AbstractTransaction> findOrderedBySeatNumberLimitedTo(String acc) {
+		return entityManager.createQuery("SELECT tx FROM AbstractTransaction tx WHERE tx.account = :acc AND tx.isConfirmed = true ORDER BY tx.transactionDate desc ", AbstractTransaction.class)
 				.setParameter("acc", acc)
 				.setMaxResults(Constants.MAX_QUERY_BY_ACC_LIMIT)
 				.getResultList();

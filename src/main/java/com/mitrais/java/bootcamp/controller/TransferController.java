@@ -1,7 +1,8 @@
 package com.mitrais.java.bootcamp.controller;
 
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
-import com.mitrais.java.bootcamp.model.persistence.Transaction;
+import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
+import com.mitrais.java.bootcamp.model.persistence.Transfer;
 import com.mitrais.java.bootcamp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,7 @@ public class TransferController {
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getIndex(@RequestParam String acc) {
-		Transaction trx = new Transaction();
+		Transfer trx = new Transfer();
 		trx.setAccount(acc);
 		return new ModelAndView("TransferForm", "form", trx);
 	}
@@ -27,7 +28,7 @@ public class TransferController {
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView submitTransfer(TransactionDto trx) {
 		try {
-			TransactionDto transaction = service.createTransaction(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
+			TransactionDto transaction = service.createTransfer(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
 
 			return new ModelAndView("ConfirmTransfer", "trx", transaction);
 		} catch (Exception e) {
@@ -38,7 +39,7 @@ public class TransferController {
 	@RequestMapping(value = "/confirmed", method = RequestMethod.GET)
 	public ModelAndView confirmed(@RequestParam String id) {
 		try {
-			Transaction trx = service.confirmTransaction(id);
+			AbstractTransaction trx = service.confirmTransaction(id);
 			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount()));
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
