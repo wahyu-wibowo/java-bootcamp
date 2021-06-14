@@ -25,7 +25,7 @@ public class TransferController {
 	}
 
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView submitOtherAmountScreen(TransactionDto trx) {
+	public ModelAndView submitTransfer(TransactionDto trx) {
 		try {
 			TransactionDto transaction = service.createTransaction(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
 

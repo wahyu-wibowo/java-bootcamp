@@ -7,6 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByAccountAndIsConfirmedTrueOrderByTransactionDate(String account);
     List<Transaction> findByTransactionDateBetweenAndIsConfirmedTrueOrderByTransactionDate(LocalDateTime before, LocalDateTime after);
 }

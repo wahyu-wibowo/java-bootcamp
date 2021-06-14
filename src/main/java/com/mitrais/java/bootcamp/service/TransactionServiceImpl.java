@@ -7,6 +7,8 @@ import com.mitrais.java.bootcamp.model.persistence.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,19 +22,21 @@ public class TransactionServiceImpl implements TransactionService {
 	@Autowired
 	private TransactionRepository trxRepo;
 
+	@PersistenceContext
+	private EntityManager entityManager;
+
 	@Override
 	public void checkAuth(Account input) throws Exception {
 		validateAccount(input.getAccountNumber());
 
 		//validate pin length
-		//todo: reactivate later
-		/*if(input.getPin().length() != Constants.PIN_LENGTH) {
+		if(input.getPin().length() != Constants.PIN_LENGTH) {
 			throw new Exception("PIN should have 6 digits length");
-		}*/
+		}
 
 		//validate pin only number
 		if(!input.getPin().matches("[0-9]+")) {
-			throw new Exception("Account Number should only contains numbers");
+			throw new Exception("PIN should only contains numbers");
 		}
 
 		//validate acc and pin is correct
@@ -51,7 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
 	public Account findByAccount(String account) throws Exception {
 		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
 		if (!result.isPresent()){
-			throw new Exception("Account Not Found");
+			throw new Exception("Invalid Account: Account Not Found");
 		} else {
 			return result.get();
 		}
@@ -66,14 +70,14 @@ public class TransactionServiceImpl implements TransactionService {
 	public TransactionDto createTransaction(String srcAcc, String dstAcc, String amount) throws Exception {
 		Account src = findByAccount(srcAcc);
 		Account dst = null;
-		
+
 		if (!StringUtils.isEmpty(dstAcc)) {
 			validateAccount(dstAcc);
 			dst = findByAccount(dstAcc);
 		}
 
 		if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
-			throw new Exception("Invalid amount");
+			throw new Exception("Invalid amount: should only contains numbers");
 		}
 
 		return createTransaction(src, dst, new BigDecimal(amount));
@@ -115,7 +119,7 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public List<TransactionDto> inquiryTransaction(TransactionDto transactionDto) throws Exception {
 		if (!StringUtils.isEmpty(transactionDto.getAccount())) {
-			return convertToDto(trxRepo.findByAccountAndIsConfirmedTrueOrderByTransactionDate(transactionDto.getAccount()));
+			return convertToDto(findOrderedBySeatNumberLimitedTo(transactionDto.getAccount()));
 		} else if (!StringUtils.isEmpty(transactionDto.getDate())) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy");
 			LocalDate dateTime = LocalDate.parse(transactionDto.getDate(), formatter);
@@ -128,11 +132,6 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	private TransactionDto createTransaction(Account srcAcc, Account dstAcc, BigDecimal amt) throws Exception {
-		//validate balance is enough
-		if (srcAcc.getBalance().compareTo(amt) < 0){
-			throw new Exception("Insufficient balance $".concat(amt.toString()));
-		}
-
 		//create trx
 		Transaction trx = new Transaction(LocalDateTime.now(), srcAcc.getAccountNumber(), amt);
 
@@ -144,6 +143,11 @@ public class TransactionServiceImpl implements TransactionService {
 			trx.setDestinationAccount(dstAcc.getAccountNumber());
 			trx.setReferenceNumber(generateRefNo());
 			validateTransfer(trx);
+		}
+
+		//validate balance is enough
+		if (srcAcc.getBalance().compareTo(amt) < 0){
+			throw new Exception("Insufficient balance $".concat(amt.toString()));
 		}
 
 		//save unconfirmed trx in db
@@ -178,15 +182,14 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	private void validateAccount(String acc) throws Exception {
-		//validate acc length
-		//todo: reactivate later
-		/*if(acc.length() != Constants.ACC_LENGTH) {
-			throw new Exception("Account Number should have 6 digits length");
-		}*/
-
 		//validate acc only number
 		if(!acc.matches("[0-9]+")) {
-			throw new Exception("Account Number should only contains numbers");
+			throw new Exception("Invalid Account: Account Number should only contains numbers");
+		}
+
+		//validate acc length
+		if(acc.length() != Constants.ACC_LENGTH) {
+			throw new Exception("Account Number should have 6 digits length");
 		}
 	}
 
@@ -201,7 +204,7 @@ public class TransactionServiceImpl implements TransactionService {
 		dto.setId(trx.getId());
 		dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 		dto.setAmount(trx.getAmount().toString());
-		dto.setBalance(arc.getBalance().toString());
+		dto.setBalance(arc.getBalance().subtract(trx.getAmount()).toString());
 		dto.setAccount(trx.getAccount());
 		dto.setDestinationAccount(trx.getDestinationAccount());
 		dto.setReferenceNumber(trx.getReferenceNumber());
@@ -224,5 +227,12 @@ public class TransactionServiceImpl implements TransactionService {
 		});
 
 		return result;
+	}
+
+	private List<Transaction> findOrderedBySeatNumberLimitedTo(String acc) {
+		return entityManager.createQuery("SELECT tx FROM Transaction tx WHERE tx.account = :acc AND tx.isConfirmed = true ORDER BY tx.transactionDate", Transaction.class)
+				.setParameter("acc", acc)
+				.setMaxResults(Constants.MAX_QUERY_BY_ACC_LIMIT)
+				.getResultList();
 	}
 }
