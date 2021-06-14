@@ -14,6 +14,8 @@ public class Constants {
 	public static final BigDecimal MIN_TRF_AMOUNT = BigDecimal.ONE;
 	public static final BigDecimal MAX_TRX_AMOUNT = new BigDecimal(1000);
 
+	public static final String COMMA_DELIMITER = ",";
+
 	public static final String PARAM_ACCOUNT = "acc";
 	public static final String PARAM_DATE = "date";
 }

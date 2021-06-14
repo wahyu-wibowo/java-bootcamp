@@ -1,11 +1,8 @@
 package com.mitrais.java.bootcamp.controller;
 
-import java.util.List;
-
 import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
-import com.mitrais.java.bootcamp.model.persistence.Transaction;
 import com.mitrais.java.bootcamp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,17 +11,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Controller
 public class TransactionController {
 	@Autowired
 	private TransactionService service;
-
-	//TODO: SHOULD BE UNUSED
-	//account list screen
-	@RequestMapping(value = "/account", method = RequestMethod.GET)
-	public ModelAndView getAccounts() {
-		return new ModelAndView("allAccounts", "accounts", service.getAllAccount());
-	}
 
 	//error page
 	@RequestMapping(value = "/validation", method = RequestMethod.GET)

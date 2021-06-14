@@ -47,11 +47,6 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public List<Account> getAllAccount() {
-		return accRepo.findAll();
-	}
-
-	@Override
 	public Account findByAccount(String account) throws Exception {
 		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
 		if (!result.isPresent()){
