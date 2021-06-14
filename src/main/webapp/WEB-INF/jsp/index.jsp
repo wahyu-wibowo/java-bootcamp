@@ -4,4 +4,11 @@
 <h1>Mitrais Java Bootcamp Index Page</h1>
 
 <a href="${pageContext.request.contextPath}/welcome" >Transaction</a><br/>
+<br/>
+<br/>
+
+
+<h2>Inquiries</h2>
+<a href="${pageContext.request.contextPath}/transaction/inquiry?param=acc" >Inquiry Transaction by Account</a><br/>
+<a href="${pageContext.request.contextPath}/transaction/inquiry?param=date" >Inquiry Transaction by Date</a><br/>
 <a href="${pageContext.request.contextPath}/account" >List Account</a>

@@ -7,8 +7,8 @@ import com.mitrais.java.bootcamp.model.persistence.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -19,19 +19,6 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Autowired
 	private TransactionRepository trxRepo;
-
-	List<Account> accounts = new ArrayList<>(Arrays.asList(
-			new Account("John Doe", "012108", "112233", new BigDecimal(100)),
-			new Account("Jane Doe", "932012", "112244", new BigDecimal(30)),
-			new Account("Dummy 1", "321", "123", new BigDecimal(3000)),
-			new Account( "Dummy 2", "321", "213", new BigDecimal(0))
-	));
-
-	@PostConstruct
-	public void injectData() {
-		//todo: move this later to import.sql
-		accRepo.save(accounts);
-	}
 
 	@Override
 	public void checkAuth(Account input) throws Exception {
@@ -125,6 +112,21 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 	}
 
+	@Override
+	public List<TransactionDto> inquiryTransaction(TransactionDto transactionDto) throws Exception {
+		if (!StringUtils.isEmpty(transactionDto.getAccount())) {
+			return convertToDto(trxRepo.findByAccountAndIsConfirmedTrueOrderByTransactionDate(transactionDto.getAccount()));
+		} else if (!StringUtils.isEmpty(transactionDto.getDate())) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy");
+			LocalDate dateTime = LocalDate.parse(transactionDto.getDate(), formatter);
+
+			LocalDateTime before = dateTime.atStartOfDay();
+			LocalDateTime after = dateTime.atTime(23,59, 59);
+			return convertToDto(trxRepo.findByTransactionDateBetweenAndIsConfirmedTrueOrderByTransactionDate(before, after));
+		}
+		return null;
+	}
+
 	private TransactionDto createTransaction(Account srcAcc, Account dstAcc, BigDecimal amt) throws Exception {
 		//validate balance is enough
 		if (srcAcc.getBalance().compareTo(amt) < 0){
@@ -205,5 +207,22 @@ public class TransactionServiceImpl implements TransactionService {
 		dto.setReferenceNumber(trx.getReferenceNumber());
 
 		return dto;
+	}
+
+	private List<TransactionDto> convertToDto(List<Transaction> trxs) {
+		List<TransactionDto> result = new ArrayList<>();
+		trxs.stream().forEach(trx -> {
+			TransactionDto dto = new TransactionDto();
+			dto.setId(trx.getId());
+			dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
+			dto.setAmount(trx.getAmount().toString());
+			dto.setAccount(trx.getAccount());
+			dto.setDestinationAccount(trx.getDestinationAccount());
+			dto.setReferenceNumber(trx.getReferenceNumber());
+
+			result.add(dto);
+		});
+
+		return result;
 	}
 }

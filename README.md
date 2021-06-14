@@ -6,6 +6,7 @@
 ## **How to try application:**
 1. Run `JavaBootcamp.java` class
 2. Open http://localhost:8080 in browser
+3. You can login using dummy account `123` and pin `321`
 
 
 ## **Known Issue:**

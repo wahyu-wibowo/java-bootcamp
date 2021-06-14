@@ -13,4 +13,5 @@ public interface TransactionService {
     TransactionDto createTransaction(String account, String amount) throws Exception;
     TransactionDto createTransaction(String srcAcc, String dstAcc, String amount) throws Exception;
     Transaction confirmTransaction(String id) throws Exception;
+    List<TransactionDto> inquiryTransaction(TransactionDto transactionDto) throws Exception;
 }
