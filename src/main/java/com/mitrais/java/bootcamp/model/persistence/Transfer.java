@@ -1,30 +1,30 @@
 package com.mitrais.java.bootcamp.model.persistence;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transaction")
 public class Transfer extends AbstractTransaction {
-    // for fund transfer only
-    private String destinationAccount;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="destination_account")
+    private Account destinationAccount;
     private String referenceNumber;
 
     public Transfer() {
         //default
     }
 
-    public Transfer(LocalDateTime transactionDate, String account, BigDecimal amount) {
+    public Transfer(LocalDateTime transactionDate, Account account, BigDecimal amount) {
         super(transactionDate, account, amount);
     }
 
-    public String getDestinationAccount() {
+    public Account getDestinationAccount() {
         return destinationAccount;
     }
 
-    public void setDestinationAccount(String destinationAccount) {
+    public void setDestinationAccount(Account destinationAccount) {
         this.destinationAccount = destinationAccount;
     }
 

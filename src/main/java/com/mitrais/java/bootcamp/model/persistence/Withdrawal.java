@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transaction")
 public class Withdrawal extends AbstractTransaction {
-	public Withdrawal(LocalDateTime transactionDate, String account, BigDecimal amount) {
+	public Withdrawal(LocalDateTime transactionDate, Account account, BigDecimal amount) {
 		super(transactionDate, account, amount);
 	}
 

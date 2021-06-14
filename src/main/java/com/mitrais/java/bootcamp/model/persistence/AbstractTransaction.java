@@ -17,7 +17,9 @@ public abstract class AbstractTransaction {
 	@Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
 	private LocalDateTime transactionDate;
 
-	private String account; //todo: might need to create relation with Account object directly
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="account")
+	private Account account;
 	private BigDecimal amount;
 	private Boolean isConfirmed;
 
@@ -25,7 +27,7 @@ public abstract class AbstractTransaction {
 		//default constructor
 	}
 
-	public AbstractTransaction(LocalDateTime transactionDate, String account, BigDecimal amount) {
+	public AbstractTransaction(LocalDateTime transactionDate, Account account, BigDecimal amount) {
 		this.transactionDate = transactionDate;
 		this.account = account;
 		this.amount = amount;
@@ -47,11 +49,11 @@ public abstract class AbstractTransaction {
 		this.transactionDate = transactionDate;
 	}
 
-	public String getAccount() {
+	public Account getAccount() {
 		return account;
 	}
 
-	public void setAccount(String account) {
+	public void setAccount(Account account) {
 		this.account = account;
 	}
 

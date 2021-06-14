@@ -55,7 +55,7 @@ public class WithdrawalController {
 	public ModelAndView confirmed(@RequestParam String id) {
 		try {
 			AbstractTransaction trx = service.confirmTransaction(id);
-			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount()));
+			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount().getAccountNumber()));
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
 		}

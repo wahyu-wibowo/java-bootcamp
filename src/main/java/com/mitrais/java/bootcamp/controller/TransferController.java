@@ -20,7 +20,7 @@ public class TransferController {
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getIndex(@RequestParam String acc) {
-		Transfer trx = new Transfer();
+		TransactionDto trx = new TransactionDto();
 		trx.setAccount(acc);
 		return new ModelAndView("TransferForm", "form", trx);
 	}
@@ -40,7 +40,7 @@ public class TransferController {
 	public ModelAndView confirmed(@RequestParam String id) {
 		try {
 			AbstractTransaction trx = service.confirmTransaction(id);
-			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount()));
+			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount().getAccountNumber()));
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
 		}
