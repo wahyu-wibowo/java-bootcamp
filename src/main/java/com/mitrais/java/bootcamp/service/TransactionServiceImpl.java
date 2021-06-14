@@ -68,7 +68,7 @@ public class TransactionServiceImpl implements TransactionService {
 		BigDecimal amt = new BigDecimal(amount);
 
 		//create trx
-		Withdrawal trx = new Withdrawal(LocalDateTime.now(), acc.getAccountNumber(), amt);
+		Withdrawal trx = new Withdrawal(LocalDateTime.now(), acc, amt);
 
 		validateTransaction(trx);
 		//validate if withdraw amount is not multiple of $10.
@@ -100,8 +100,8 @@ public class TransactionServiceImpl implements TransactionService {
 		BigDecimal amt = new BigDecimal(amount);
 
 		//create trx
-		Transfer trx = new Transfer(LocalDateTime.now(), src.getAccountNumber(), amt);
-		trx.setDestinationAccount(dst.getAccountNumber());
+		Transfer trx = new Transfer(LocalDateTime.now(), src, amt);
+		trx.setDestinationAccount(dst);
 		trx.setReferenceNumber(generateRefNo());
 		validateTransfer(trx);
 
@@ -124,7 +124,7 @@ public class TransactionServiceImpl implements TransactionService {
 		if (trx == null || trx.getAmount() == null){
 			throw new Exception("Transaction Not Found");
 		} else {
-			Account acc = findByAccount(trx.getAccount());
+			Account acc = trx.getAccount();
 
 			//revalidate balance is enough
 			if (acc.getBalance().compareTo(trx.getAmount()) < 0){
@@ -136,7 +136,7 @@ public class TransactionServiceImpl implements TransactionService {
 			Transfer trf = (Transfer) trx;
 			if (!StringUtils.isEmpty(trf.getDestinationAccount())) {
 				//transfer journal
-				Account destAcc = findByAccount(trf.getDestinationAccount());
+				Account destAcc = trf.getDestinationAccount();
 				destAcc.setBalance(destAcc.getBalance().add(trx.getAmount()));
 				accRepo.save(destAcc);
 			}
@@ -206,7 +206,7 @@ public class TransactionServiceImpl implements TransactionService {
 		dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 		dto.setAmount(trx.getAmount().toString());
 		dto.setBalance(arc.getBalance().subtract(trx.getAmount()).toString());
-		dto.setAccount(trx.getAccount());
+		dto.setAccount(trx.getAccount().getAccountNumber());
 		//todo: try
 		/*dto.setDestinationAccount(trx.getDestinationAccount());
 		dto.setReferenceNumber(trx.getReferenceNumber());*/
@@ -221,7 +221,7 @@ public class TransactionServiceImpl implements TransactionService {
 			dto.setId(trx.getId());
 			dto.setDate(trx.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
 			dto.setAmount(trx.getAmount().toString());
-			dto.setAccount(trx.getAccount());
+			dto.setAccount(trx.getAccount().getAccountNumber());
 			//todo: try
 			/*dto.setDestinationAccount(trx.getDestinationAccount());
 			dto.setReferenceNumber(trx.getReferenceNumber());*/
