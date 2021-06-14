@@ -3,7 +3,7 @@ package com.mitrais.java.bootcamp.controller;
 import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
-import com.mitrais.java.bootcamp.service.TransactionService;
+import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +16,7 @@ import java.util.List;
 @Controller
 public class TransactionController {
 	@Autowired
-	private TransactionService service;
+	private WithdrawalServiceImpl service;
 
 	//error page
 	@RequestMapping(value = "/validation", method = RequestMethod.GET)

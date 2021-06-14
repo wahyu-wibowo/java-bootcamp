@@ -2,8 +2,7 @@ package com.mitrais.java.bootcamp.controller;
 
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
-import com.mitrais.java.bootcamp.model.persistence.Transfer;
-import com.mitrais.java.bootcamp.service.TransactionService;
+import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/transfer")
 public class TransferController {
 	@Autowired
-	private TransactionService service;
+	private WithdrawalServiceImpl service; //todo: change into TransferServiceImpl
 
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -28,9 +27,10 @@ public class TransferController {
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView submitTransfer(TransactionDto trx) {
 		try {
-			TransactionDto transaction = service.createTransfer(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
+			//todo: fix this
+			//TransactionDto transaction = service.createTransfer(trx.getAccount(), trx.getDestinationAccount(), trx.getAmount());
 
-			return new ModelAndView("ConfirmTransfer", "trx", transaction);
+			return new ModelAndView("ConfirmTransfer", "trx", trx);
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
 		}

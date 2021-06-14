@@ -9,6 +9,15 @@ public class TransactionDto {
 	private String date;
 	private String balance;
 
+	public TransactionDto() {
+		//default
+	}
+
+	public TransactionDto(String account, String amount) {
+		this.account = account;
+		this.amount = amount;
+	}
+
 	public Long getId() {
 		return id;
 	}
