@@ -18,6 +18,12 @@ public class TransactionDto {
 		this.amount = amount;
 	}
 
+	public TransactionDto(String account, String amount, String destinationAccount) {
+		this.account = account;
+		this.amount = amount;
+		this.destinationAccount = destinationAccount;
+	}
+
 	public Long getId() {
 		return id;
 	}

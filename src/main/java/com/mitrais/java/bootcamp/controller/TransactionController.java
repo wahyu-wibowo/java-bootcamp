@@ -3,6 +3,7 @@ package com.mitrais.java.bootcamp.controller;
 import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
+import com.mitrais.java.bootcamp.service.AccountService;
 import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,9 @@ import java.util.List;
 public class TransactionController {
 	@Autowired
 	private WithdrawalServiceImpl service;
+
+	@Autowired
+	private AccountService accountService;
 
 	//error page
 	@RequestMapping(value = "/validation", method = RequestMethod.GET)
@@ -39,7 +43,7 @@ public class TransactionController {
 	@RequestMapping(value = "/welcome", method = RequestMethod.POST)
 	public String welcomeScreen(Account account) {
 		try {
-			service.checkAuth(account);
+			accountService.checkAuth(account);
 			return ("redirect:/transaction?acc=".concat(account.getAccountNumber()));
 		} catch (Exception e) {
 			return ("redirect:/validation?message=".concat(e.getMessage()));

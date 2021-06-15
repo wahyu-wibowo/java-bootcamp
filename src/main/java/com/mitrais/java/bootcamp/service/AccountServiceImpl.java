@@ -8,12 +8,43 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class AccountServiceImpl implements AccountService {
 	@Autowired
 	private AccountRepository accRepo;
+
+	@Override
+	public Account findByAccount(String account) throws Exception {
+		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
+		if (!result.isPresent()){
+			throw new Exception("Invalid Account: Account Not Found");
+		} else {
+			return result.get();
+		}
+	}
+
+	@Override
+	public void checkAuth(Account input) throws Exception {
+		validateAccount(input.getAccountNumber());
+
+		//validate pin length
+		if(input.getPin().length() != Constants.PIN_LENGTH) {
+			throw new Exception("PIN should have 6 digits length");
+		}
+
+		//validate pin only number
+		if(!input.getPin().matches("[0-9]+")) {
+			throw new Exception("PIN should only contains numbers");
+		}
+
+		//validate acc and pin is correct
+		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(input.getAccountNumber())).findAny();
+		if (!result.isPresent() || !result.get().getPin().equals(input.getPin())){
+			throw new Exception("Invalid Account Number/PIN");
+		}
+	}
 
 	@Override
 	public List<Account> getAllAccount() {
@@ -47,5 +78,18 @@ public class AccountServiceImpl implements AccountService {
 		}
 
 		accRepo.save(records);
+	}
+
+	@Override
+	public void validateAccount(String acc) throws Exception {
+		//validate acc only number
+		if(!acc.matches("[0-9]+")) {
+			throw new Exception("Invalid Account: Account Number should only contains numbers");
+		}
+
+		//validate acc length
+		if(acc.length() != Constants.ACC_LENGTH) {
+			throw new Exception("Account Number should have 6 digits length");
+		}
 	}
 }
