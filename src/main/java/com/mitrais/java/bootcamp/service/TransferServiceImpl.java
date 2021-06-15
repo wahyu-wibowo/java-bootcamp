@@ -7,10 +7,9 @@ import com.mitrais.java.bootcamp.model.persistence.Transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TransferServiceImpl extends TransactionServiceAbstract {
+    //todo: can be simplified
     @Override
     public TransactionDto createTransaction(TransactionDto dto) throws Exception {
         Account src = accountService.findByAccount(dto.getAccount());
@@ -24,9 +23,7 @@ public class TransferServiceImpl extends TransactionServiceAbstract {
         BigDecimal amt = new BigDecimal(dto.getAmount());
 
         //create trx
-        Transfer trx = new Transfer(LocalDateTime.now(), src, amt);
-        trx.setDestinationAccount(dst);
-        trx.setReferenceNumber(generateRefNo());
+        Transfer trx = new Transfer(LocalDateTime.now(), src, amt, dst, generateRefNo());
         validateTransfer(trx);
 
         //validate balance is enough
@@ -54,22 +51,13 @@ public class TransferServiceImpl extends TransactionServiceAbstract {
 
     @Override
     protected TransactionDto convertToDto(AbstractTransaction trx) {
-        Transfer transfer = (Transfer) trx;
         TransactionDto dto = super.convertToDto(trx);
-        dto.setDestinationAccount(transfer.getDestinationAccount().getAccountNumber());
-		dto.setReferenceNumber(transfer.getReferenceNumber());
+
+        //transfer journal
+        Transfer trf = (Transfer) trx;
+        dto.setDestinationAccount(trf.getDestinationAccount().getAccountNumber());
+        dto.setReferenceNumber(trf.getReferenceNumber());
 
         return dto;
-    }
-
-    @Override
-    //todo: might not needed
-    protected List<TransactionDto> convertToDto(List<AbstractTransaction> trxs) {
-        List<TransactionDto> result = new ArrayList<>();
-        trxs.stream().forEach(trx -> {
-            result.add(convertToDto(trx));
-        });
-
-        return result;
     }
 }

@@ -16,8 +16,10 @@ public class Transfer extends AbstractTransaction {
         //default
     }
 
-    public Transfer(LocalDateTime transactionDate, Account account, BigDecimal amount) {
+    public Transfer(LocalDateTime transactionDate, Account account, BigDecimal amount, Account destinationAccount, String referenceNumber) {
         super(transactionDate, account, amount);
+        this.destinationAccount = destinationAccount;
+        this.referenceNumber = referenceNumber;
     }
 
     public Account getDestinationAccount() {

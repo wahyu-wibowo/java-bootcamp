@@ -1,29 +1,29 @@
 package com.mitrais.java.bootcamp.model.dto;
 
-public class TransactionDto {
-	private Long id;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class TransactionInquiryData {
+	private LocalDateTime transactionDate;
 	private String account;
-	private String amount;
+	private BigDecimal amount;
 	private String destinationAccount;
 	private String referenceNumber;
-	private String date;
-	private String balance;
 
-	public TransactionDto() {
-		//default
-	}
-
-	public TransactionDto(String account, String amount) {
+	public TransactionInquiryData(String account, BigDecimal amount, String destinationAccount, String referenceNumber, LocalDateTime transactionDate) {
+		this.transactionDate = transactionDate;
 		this.account = account;
 		this.amount = amount;
+		this.destinationAccount = destinationAccount;
+		this.referenceNumber = referenceNumber;
 	}
 
-	public Long getId() {
-		return id;
+	public LocalDateTime getTransactionDate() {
+		return transactionDate;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setTransactionDate(LocalDateTime transactionDate) {
+		this.transactionDate = transactionDate;
 	}
 
 	public String getAccount() {
@@ -34,11 +34,11 @@ public class TransactionDto {
 		this.account = account;
 	}
 
-	public String getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(String amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
@@ -56,21 +56,5 @@ public class TransactionDto {
 
 	public void setReferenceNumber(String referenceNumber) {
 		this.referenceNumber = referenceNumber;
-	}
-
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	public String getBalance() {
-		return balance;
-	}
-
-	public void setBalance(String balance) {
-		this.balance = balance;
 	}
 }

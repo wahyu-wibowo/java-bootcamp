@@ -4,7 +4,7 @@ import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
 import com.mitrais.java.bootcamp.service.AccountService;
-import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
+import com.mitrais.java.bootcamp.service.TransactionInquiryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +17,7 @@ import java.util.List;
 @Controller
 public class TransactionController {
 	@Autowired
-	private WithdrawalServiceImpl service;
+	private TransactionInquiryService service;
 
 	@Autowired
 	private AccountService accountService;

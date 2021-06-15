@@ -1,6 +1,7 @@
 package com.mitrais.java.bootcamp.service;
 
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
+import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
 import com.mitrais.java.bootcamp.model.persistence.Account;
 import com.mitrais.java.bootcamp.model.persistence.Withdrawal;
 
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class WithdrawalServiceImpl extends TransactionServiceAbstract {
+    //todo: can be simplified
     @Override
     public TransactionDto createTransaction(TransactionDto dto) throws Exception {
         String account = dto.getAccount();
@@ -38,4 +40,9 @@ public class WithdrawalServiceImpl extends TransactionServiceAbstract {
 
         return convertToDto(trx);
     }
+/*
+    @Override
+    protected TransactionDto convertToDto(AbstractTransaction trx) {
+        return super.convertToDto(trx);
+    }*/
 }

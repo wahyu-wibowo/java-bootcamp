@@ -2,6 +2,7 @@
 1. Postgresql is installed and running
 2. Make sure its accessible in `localhost:5432/postgres`
 3. Make sure its password is correctly configured in `resources/application.properties` file
+4. Sample of csv file for account upload is on `account.csv`
 
 ## **How to try application:**
 1. Run `JavaBootcamp.java` class

@@ -21,4 +21,9 @@ public class SpringConfig {
         return new WithdrawalServiceImpl();
     }
 
+    @Bean
+    public TransactionInquiryService getTransactionInquiryService() {
+        return new TransactionInquiryServiceImpl();
+    }
+
 }
