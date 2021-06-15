@@ -1,12 +1,10 @@
 package com.mitrais.java.bootcamp.controller;
 
-import java.util.List;
-
 import com.mitrais.java.bootcamp.Constants;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.Account;
-import com.mitrais.java.bootcamp.model.persistence.Transaction;
-import com.mitrais.java.bootcamp.service.TransactionService;
+import com.mitrais.java.bootcamp.service.AccountService;
+import com.mitrais.java.bootcamp.service.TransactionInquiryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,17 +12,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Controller
 public class TransactionController {
 	@Autowired
-	private TransactionService service;
+	private TransactionInquiryService service;
 
-	//TODO: SHOULD BE UNUSED
-	//account list screen
-	@RequestMapping(value = "/account", method = RequestMethod.GET)
-	public ModelAndView getAccounts() {
-		return new ModelAndView("allAccounts", "accounts", service.getAllAccount());
-	}
+	@Autowired
+	private AccountService accountService;
 
 	//error page
 	@RequestMapping(value = "/validation", method = RequestMethod.GET)
@@ -47,7 +43,7 @@ public class TransactionController {
 	@RequestMapping(value = "/welcome", method = RequestMethod.POST)
 	public String welcomeScreen(Account account) {
 		try {
-			service.checkAuth(account);
+			accountService.checkAuth(account);
 			return ("redirect:/transaction?acc=".concat(account.getAccountNumber()));
 		} catch (Exception e) {
 			return ("redirect:/validation?message=".concat(e.getMessage()));

@@ -1,8 +1,8 @@
 package com.mitrais.java.bootcamp.controller;
 
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
-import com.mitrais.java.bootcamp.model.persistence.Transaction;
-import com.mitrais.java.bootcamp.service.TransactionService;
+import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
+import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,12 +14,11 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/withdrawal")
 public class WithdrawalController {
 	@Autowired
-	private TransactionService service;
+	private WithdrawalServiceImpl service;
 
 	//index screen
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getIndex(@RequestParam String acc) {
-		Transaction trx = new Transaction();
 		return new ModelAndView("fixedWithdrawal", "acc", acc);
 	}
 
@@ -34,7 +33,7 @@ public class WithdrawalController {
 	@RequestMapping(value = "/other", method = RequestMethod.POST)
 	public ModelAndView submitOtherAmountScreen(TransactionDto trx) {
 		try {
-			TransactionDto transaction = service.createTransaction(trx.getAccount(), trx.getAmount());
+			TransactionDto transaction = service.createTransaction(trx);
 			return new ModelAndView("ConfirmWithdrawal", "trx", transaction);
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
@@ -45,7 +44,7 @@ public class WithdrawalController {
 	@RequestMapping(value = "/confirm", method = RequestMethod.GET)
 	public ModelAndView confirm(@RequestParam String amt, @RequestParam String acc) {
 		try {
-			TransactionDto trx = service.createTransaction(acc, amt);
+			TransactionDto trx = service.createTransaction(new TransactionDto(acc, amt));
 			return new ModelAndView("ConfirmWithdrawal", "trx", trx);
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
@@ -55,8 +54,8 @@ public class WithdrawalController {
 	@RequestMapping(value = "/confirmed", method = RequestMethod.GET)
 	public ModelAndView confirmed(@RequestParam String id) {
 		try {
-			Transaction trx = service.confirmTransaction(id);
-			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount()));
+			AbstractTransaction trx = service.confirmTransaction(id);
+			return new ModelAndView("redirect:/transaction?acc=".concat(trx.getAccount().getAccountNumber()));
 		} catch (Exception e) {
 			return new ModelAndView("redirect:/validation?message=".concat(e.getMessage()));
 		}
