@@ -1,7 +1,6 @@
 package com.mitrais.java.bootcamp.service;
 
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
-import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
 import com.mitrais.java.bootcamp.model.persistence.Account;
 import com.mitrais.java.bootcamp.model.persistence.Withdrawal;
 
@@ -40,9 +39,4 @@ public class WithdrawalServiceImpl extends TransactionServiceAbstract {
 
         return convertToDto(trx);
     }
-/*
-    @Override
-    protected TransactionDto convertToDto(AbstractTransaction trx) {
-        return super.convertToDto(trx);
-    }*/
 }

@@ -17,6 +17,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public Account findByAccount(String account) throws Exception {
+		//todo: change to findone
 		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
 		if (!result.isPresent()){
 			throw new Exception("Invalid Account: Account Not Found");
@@ -40,6 +41,7 @@ public class AccountServiceImpl implements AccountService {
 		}
 
 		//validate acc and pin is correct
+		//todo: change to findone
 		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(input.getAccountNumber())).findAny();
 		if (!result.isPresent() || !result.get().getPin().equals(input.getPin())){
 			throw new Exception("Invalid Account Number/PIN");
