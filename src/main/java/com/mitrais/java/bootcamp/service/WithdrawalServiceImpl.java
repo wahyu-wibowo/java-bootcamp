@@ -9,29 +9,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class WithdrawalServiceImpl extends TransactionServiceAbstract {
-    //todo: can be simplified
     @Override
     public TransactionDto createTransaction(TransactionDto dto) throws Exception {
-        String account = dto.getAccount();
-        String amount = dto.getAmount();
-        if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
-            throw new Exception("Invalid amount: should only contains numbers");
-        }
+        Account src = accountService.findByAccount(dto.getAccount());
 
-        Account acc = accountService.findByAccount(account);
-        BigDecimal amt = new BigDecimal(amount);
+        validateAmountValue(dto.getAmount());
+        BigDecimal amt = new BigDecimal(dto.getAmount());
 
         //create trx
-        Withdrawal trx = new Withdrawal(LocalDateTime.now(), acc, amt);
-
+        Withdrawal trx = new Withdrawal(LocalDateTime.now(), src, amt);
         validateTransaction(trx);
-        //validate if withdraw amount is not multiple of $10.
-        if(trx.getAmount().remainder(BigDecimal.TEN).compareTo(BigDecimal.ZERO) != 0) {
-            throw new Exception("Invalid amount");
-        }
 
         //validate balance is enough
-        if (acc.getBalance().compareTo(amt) < 0){
+        if (src.getBalance().compareTo(amt) < 0){
             throw new Exception("Insufficient balance $".concat(amt.toString()));
         }
 
@@ -40,9 +30,14 @@ public class WithdrawalServiceImpl extends TransactionServiceAbstract {
 
         return convertToDto(trx);
     }
-/*
+
     @Override
-    protected TransactionDto convertToDto(AbstractTransaction trx) {
-        return super.convertToDto(trx);
-    }*/
+    protected void validateTransaction(AbstractTransaction trx) throws Exception{
+        super.validateTransaction(trx);
+
+        //validate if withdraw amount is not multiple of $10.
+        if (trx.getAmount().remainder(BigDecimal.TEN).compareTo(BigDecimal.ZERO) != 0) {
+            throw new Exception("Invalid amount");
+        }
+    }
 }

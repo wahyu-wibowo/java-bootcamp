@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class AccountServiceImpl implements AccountService {
 	@Autowired
@@ -17,12 +16,12 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public Account findByAccount(String account) throws Exception {
-		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(account)).findAny();
-		if (!result.isPresent()){
+		Account result = accRepo.findOne(account);
+		if (result == null){
 			throw new Exception("Invalid Account: Account Not Found");
-		} else {
-			return result.get();
 		}
+
+		return result;
 	}
 
 	@Override
@@ -40,8 +39,8 @@ public class AccountServiceImpl implements AccountService {
 		}
 
 		//validate acc and pin is correct
-		Optional<Account> result = accRepo.findAll().stream().filter(x -> x.getAccountNumber().equals(input.getAccountNumber())).findAny();
-		if (!result.isPresent() || !result.get().getPin().equals(input.getPin())){
+		Account result = accRepo.findOne(input.getAccountNumber());
+		if (result == null || !result.getPin().equals(input.getPin())){
 			throw new Exception("Invalid Account Number/PIN");
 		}
 	}
