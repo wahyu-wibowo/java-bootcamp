@@ -3,7 +3,6 @@ package com.mitrais.java.bootcamp.controller;
 import com.mitrais.java.bootcamp.model.dto.TransactionDto;
 import com.mitrais.java.bootcamp.model.persistence.AbstractTransaction;
 import com.mitrais.java.bootcamp.service.TransferServiceImpl;
-import com.mitrais.java.bootcamp.service.WithdrawalServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

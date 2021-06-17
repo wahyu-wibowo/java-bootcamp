@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -33,7 +34,7 @@ public class AccountServiceTest {
         Account acc = new Account();
         acc.setAccountNumber("112233");
         acc.setPin("123456");
-        when(accRepo.findAll()).thenReturn(generateAccounts());
+        when(accRepo.findOne(anyString())).thenReturn(generateAccounts().get(0));
         service.checkAuth(acc);
     }
 
@@ -89,7 +90,7 @@ public class AccountServiceTest {
 
     @Test
     public void findByAccountTest() throws Exception {
-        when(accRepo.findAll()).thenReturn(generateAccounts());
+        when(accRepo.findOne(anyString())).thenReturn(generateAccounts().get(0));
         service.findByAccount("112233");
     }
 

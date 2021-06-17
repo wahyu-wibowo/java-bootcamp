@@ -22,9 +22,8 @@ public abstract class TransactionServiceAbstract implements TransactionService {
     @Override
     public AbstractTransaction confirmTransaction(String id) throws Exception {
         //saving trx and do journaling
-        //todo: might need to check trx confirmation status
         AbstractTransaction trx = trxRepo.findOne(Long.valueOf(id));
-        if (trx == null || trx.getAmount() == null){
+        if (trx == null || trx.getAmount() == null || (trx.getConfirmed() != null && trx.getConfirmed())) {
             throw new Exception("Transaction Not Found");
         } else {
             Account acc = trx.getAccount();
@@ -46,19 +45,16 @@ public abstract class TransactionServiceAbstract implements TransactionService {
         }
     }
 
-    protected void validateTransaction(AbstractTransaction trx) throws Exception{
+    protected void validateTransaction(AbstractTransaction trx) throws Exception {
         //validate max amount per transaction
         if (trx.getAmount().compareTo(Constants.MAX_TRX_AMOUNT) > 0) {
             throw new Exception("Maximum amount to withdraw is $".concat(Constants.MAX_TRX_AMOUNT.toString()));
         }
     }
 
-    protected void validateTransfer(AbstractTransaction trx) throws Exception{
-        validateTransaction(trx);
-
-        //validate if transfer amount is < 1
-        if (trx.getAmount().compareTo(Constants.MIN_TRF_AMOUNT) < 0) {
-            throw new Exception("Minimum amount to withdraw is ".concat(Constants.MIN_TRF_AMOUNT.toString()));
+    protected void validateAmountValue(String amount) throws Exception {
+        if(!amount.matches("[0-9]+([,.][0-9]{1,2})?")) {
+            throw new Exception("Invalid amount: should only contains numbers");
         }
     }
 
